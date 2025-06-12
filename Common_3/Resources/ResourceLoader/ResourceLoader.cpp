@@ -94,17 +94,17 @@ enum
 
 extern "C"
 {
-    void getBufferSizeAlign(Renderer* pRenderer, const BufferDesc* pDesc, ResourceSizeAlign* pOut);
-    void getTextureSizeAlign(Renderer* pRenderer, const TextureDesc* pDesc, ResourceSizeAlign* pOut);
-    void addBuffer(Renderer* pRenderer, const BufferDesc* pDesc, Buffer** pp_buffer);
-    void removeBuffer(Renderer* pRenderer, Buffer* pBuffer);
-    void mapBuffer(Renderer* pRenderer, Buffer* pBuffer, ReadRange* pRange);
-    void unmapBuffer(Renderer* pRenderer, Buffer* pBuffer);
-    void cmdUpdateBuffer(Cmd* pCmd, Buffer* pBuffer, uint64_t dstOffset, Buffer* pSrcBuffer, uint64_t srcOffset, uint64_t size);
-    void cmdUpdateSubresource(Cmd* pCmd, Texture* pTexture, Buffer* pSrcBuffer, const struct SubresourceDataDesc* pSubresourceDesc);
-    void cmdCopySubresource(Cmd* pCmd, Buffer* pDstBuffer, Texture* pTexture, const struct SubresourceDataDesc* pSubresourceDesc);
-    void addTexture(Renderer* pRenderer, const TextureDesc* pDesc, Texture** ppTexture);
-    void removeTexture(Renderer* pRenderer, Texture* pTexture);
+void getBufferSizeAlign(Renderer* pRenderer, const BufferDesc* pDesc, ResourceSizeAlign* pOut);
+void getTextureSizeAlign(Renderer* pRenderer, const TextureDesc* pDesc, ResourceSizeAlign* pOut);
+void addBuffer(Renderer* pRenderer, const BufferDesc* pDesc, Buffer** pp_buffer);
+void removeBuffer(Renderer* pRenderer, Buffer* pBuffer);
+void mapBuffer(Renderer* pRenderer, Buffer* pBuffer, ReadRange* pRange);
+void unmapBuffer(Renderer* pRenderer, Buffer* pBuffer);
+void cmdUpdateBuffer(Cmd* pCmd, Buffer* pBuffer, uint64_t dstOffset, Buffer* pSrcBuffer, uint64_t srcOffset, uint64_t size);
+void cmdUpdateSubresource(Cmd* pCmd, Texture* pTexture, Buffer* pSrcBuffer, const struct SubresourceDataDesc* pSubresourceDesc);
+void cmdCopySubresource(Cmd* pCmd, Buffer* pDstBuffer, Texture* pTexture, const struct SubresourceDataDesc* pSubresourceDesc);
+void addTexture(Renderer* pRenderer, const TextureDesc* pDesc, Texture** ppTexture);
+void removeTexture(Renderer* pRenderer, Texture* pTexture);
 }
 
 struct ShaderByteCodeBuffer
@@ -1291,7 +1291,7 @@ static UploadFunctionResult loadTexture(Renderer* pRenderer, CopyEngine* pCopyEn
         const uint32_t    sliceAlignment = util_get_texture_subresource_alignment(pRenderer, fmt);
         const uint32_t    rowAlignment = util_get_texture_row_alignment(pRenderer);
         const uint64_t    requiredSize = util_get_surface_size(fmt, texture->mWidth, texture->mHeight, texture->mDepth, rowAlignment,
-                                                            sliceAlignment, 0, texture->mMipLevels, 0, texture->mArraySizeMinusOne + 1u);
+                                                               sliceAlignment, 0, texture->mMipLevels, 0, texture->mArraySizeMinusOne + 1u);
         MappedMemoryRange range = allocateStagingMemory(pCopyEngine, requiredSize, sliceAlignment, texture->mNodeIndex);
         memset(range.pData, 0, range.mSize);
 
@@ -3782,7 +3782,7 @@ void beginUpdateResource(TextureUpdateDesc* pTextureUpdate)
         uint32_t srcRowStride = 0;
         uint32_t rowCount = 0;
         bool     success = util_get_surface_info(MIP_REDUCE(texture->mWidth, mip), MIP_REDUCE(texture->mHeight, mip), fmt, &srcSliceStride,
-                                             &srcRowStride, &rowCount);
+                                                 &srcRowStride, &rowCount);
         ASSERT(success);
         uint32_t d = MIP_REDUCE(texture->mDepth, mip);
 
@@ -3928,6 +3928,7 @@ static bool load_shader_stage_byte_code(Renderer* pRenderer, const char* name, S
     const bool result = fsOpenStreamFromPath(RD_SHADER_BINARIES, binaryShaderPath, FM_READ, &binaryFileStream);
 #endif
 
+    LOGF(eERROR, "Tryna open %s", binaryShaderPath);
     ASSERT(result);
     if (!result)
     {
@@ -4073,7 +4074,7 @@ void addShader(Renderer* pRenderer, const ShaderLoadDesc* pDesc, Shader** ppShad
 #define SHADER_STAGE_INDEX_WORKGRAPH 6
     const ShaderStageLoadDesc* stages[] = { &pDesc->mVert, &pDesc->mHull, &pDesc->mDomain, &pDesc->mGeom, &pDesc->mFrag, &pDesc->mComp,
 #if defined(ENABLE_WORKGRAPH)
-        &pDesc->mGraph
+                                            &pDesc->mGraph
 #endif
     };
     uint32_t numThreadsPerGroup[3] = { 0, 0, 0 };
